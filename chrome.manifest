@@ -1,0 +1,8 @@
+content	sort-tabs	content/
+overlay	chrome://browser/content/browser.xul	chrome://sort-tabs/content/overlay.xul
+
+locale	sort-tabs	en-US	locale/en-US/
+locale	sort-tabs	zh-TW	locale/zh-TW/
+
+skin	sort-tabs	classic/1.0	skin/
+style	chrome://global/content/customizeToolbar.xul	chrome://sort-tabs/skin/overlay.css
