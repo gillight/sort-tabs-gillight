@@ -28,6 +28,9 @@ var SortTabs = {
   },
   
   cmp_domain: function(a, b){
+	  if(a.toLocaleLowerCase() == b.toLocaleLowerCase()){
+		  return 0;
+	  }
 	  var a_dc_arr = a.split('.');
 	  var b_dc_arr = b.split('.');
 	  a_dc_arr.reverse();
@@ -40,7 +43,7 @@ var SortTabs = {
 				  ret = 1;
 				  throw BreakException;
 			  }
-			  var cmp = SortTabs.cmp_variant(a_dc.toLocaleLowerCase(), b_dc_arr[a_i].toLocaleLowerCase());
+			  var cmp = a_dc.toLocaleLowerCase().localeCompare(b_dc_arr[a_i].toLocaleLowerCase());
 			  if(cmp != 0){
 				  ret = cmp;
 				  throw BreakException;
@@ -50,25 +53,28 @@ var SortTabs = {
 		if (e!==BreakException) throw e;
 		return ret;
       }
-      if(a_dc_arr.length < b_dc_arr.length){
-		  return 1;
-	  }else{
-		  return 0;
-	  }
+	  return -1;
   },
   
   get_host: function(aURI){
-	  if(aURI.scheme != 'about'){
-		  return aURI.host;
-	  }else{
-		  return '';
-	  }	  
+	  var host = '';
+	  try{
+		  host = aURI.host;
+	  }catch(e){}
+	  return host;
   },
 
   domain_sort: function(a, b){
+	  SortTabs.log(a.label);
+	  SortTabs.log(b.label);
 	  var cmp = SortTabs.cmp_domain(SortTabs.get_host(a.linkedBrowser.currentURI), SortTabs.get_host(b.linkedBrowser.currentURI));
 	  if(cmp != 0){ return cmp; }
-	  return SortTabs.cmp_variant(a.linkedBrowser.currentURI.path, b.linkedBrowser.currentURI.path);
+	  return a.linkedBrowser.currentURI.path.localeCompare(b.linkedBrowser.currentURI.path);
+  },
+  
+  log: function(m){
+	  return;
+	  Services.console.logStringMessage(m);
   },
   
   run: function(){
@@ -96,17 +102,15 @@ var SortTabs = {
         tabs[tabs.length] = tab; 
       }
     });
-    if(0){
-    tabs.sort(
-      function(a, b)(
-        (a.linkedBrowser.currentURI.asciiSpec < 
-        b.linkedBrowser.currentURI.asciiSpec) ? -1 : 1
-      )
-    );
-	}
+    SortTabs.log(tabs.length);
+    tabs.forEach(function(item){
+		SortTabs.log(item.label);
+	});
 	tabs.sort(this.domain_sort);
     tabs.forEach(gBrowser.moveTabTo.bind(gBrowser));
   },
 };
+
+//SortTabs.run();
 
 window.addEventListener("load", function(e) { SortTabs.onLoad(e); }, false); 
